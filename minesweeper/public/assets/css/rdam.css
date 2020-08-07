@@ -1,0 +1,116 @@
+
+@font-face {
+    font-family: 'icomoon';
+    src:  url('fonts/icomoon.eot?nzz3cs');
+    src:  url('fonts/icomoon.eot?nzz3cs#iefix') format('embedded-opentype'),
+      url('fonts/icomoon.ttf?nzz3cs') format('truetype'),
+      url('fonts/icomoon.woff?nzz3cs') format('woff'),
+      url('fonts/icomoon.svg?nzz3cs#icomoon') format('svg');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+  }
+  
+  [class^="icon-d"], [class*="icon-d"] {
+    /* use !important to prevent issues with browser extensions that change fonts */
+    font-family: 'icomoon' !important;
+    speak: never;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+  
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  .icon-diabetes:before {
+    content: "\e900";
+  }
+
+  .bg-rdam {
+      background-color: #ff5821;
+      color: #ffffff;
+  }
+
+  .bg-rdam:hover {
+    background-color: #ed3b00;
+    color: #ffffff;
+  }
+  .bg-rdam.finalizar {
+    background-color: red !important;
+    color: #ffffff;
+  }
+
+  .bg-rdam.finalizar:hover {
+    background-color: darkred !important;
+    color: #ffffff;
+  }
+
+  .img-exc{
+    display: block;
+    width: 200px;
+    padding: 5px;
+    margin: 5px auto !important;
+    height: 263.25px;
+  }
+
+  .imgCon{
+    text-align: center;
+  }
+
+  #watermark {
+    position: absolute;
+    text-align: left !important;
+    left: calc(50% - 90px);
+    bottom: 11px;
+    opacity: 0.5;
+    z-index: 99;
+    color: white;
+    width: 170px !important;
+    font-size: 10px;
+  }
+  @media only screen and (max-width: 993px){
+    ul.stepper {        
+      list-style-type: none !important;
+    }
+    ul.stepper {
+      padding-left: 0px;
+    }
+
+    ul.stepper .step-content {
+      position: relative;
+      display: none;
+      height: calc(100% - 132px);
+      width: inherit;
+      overflow: visible;
+      margin-left: 10px !important;
+      margin-right: 24px;
+    }
+
+    ul.stepper .step-actions {
+      padding-top: 16px;
+      -webkit-display: flex;
+      -moz-display: flex;
+      -ms-display: flex;
+      display: -webkit-box;
+      display: flex;
+      -ms-flex-pack: end;
+      -webkit-box-pack: end;
+      justify-content: flex-end !important;
+      padding-right: 0px !important;
+    }
+
+    #watermark {
+      width: 170px !important;
+      font-size: 8px !important;
+    }
+  }
+
+  @media only screen and (min-width: 993px){
+    ul.stepper.horizontal .step-content {        
+        padding: 20px 20px 20px 20px !important;
+    }
+  }
