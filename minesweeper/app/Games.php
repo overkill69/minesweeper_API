@@ -6,8 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Games extends Model
 {
-    public function player()
+    public function players()
     {
-        return $this->HasOne('App\Players');
+        return $this->BelongsTo('App\Players');
+    }
+
+    public function grid()
+    {
+        return $this->HasOne('App\Grids');
     }
 }

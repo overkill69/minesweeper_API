@@ -45,6 +45,13 @@
                         </div>
                         
                     </div>
+                    <div class="row">
+                        <div class="col-md-3">Amount of Bombs:</div>
+                        <div class="col-md-9  text-justify">
+                            <input name="num-bombs" id="num-bombs" placeholder="Amount of bombs"/>
+                        </div>
+                        
+                    </div>
                     <div class="text-center"><button type="submit">Create</button></div>
                 </form>
                 </div>

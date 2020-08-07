@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Games;
 use App\Players;
+use App\Grids;
+use App\Squares;
 use Illuminate\Http\Request;
 
 class GamesController extends Controller
@@ -39,18 +41,34 @@ class GamesController extends Controller
     public function store(Request $request)
     {
         // if is nrew player creates and then create the game
+
         if(!$request->input("playerId")){
             $player = new Players();
             $player->name = $request->input("player");
             $player->save();
         }
+        $grid = new Grids();
+        $grid->width = $grid->height = $request->input("size");
+        $grid->bombs = $request->input("num-bombs");
+        $grid->save();
+        /* Set the bombs*/
+        $bombs = array();
+
+		$max_square = $request->input('size') * $request->input('size');
+		$array_squares = range(1, $max_square);
+		shuffle($array_squares);
+		$bombs = array_slice($array_squares, 0, $request->input("num-bombs"));
+        /* */
+        $this->setSquares($bombs, $request->input("size"), $grid->id);
+        /*** */
         $game = new Games();
         $game->name = $request->input("name");
-        $game->player_id = ($request->input("playerId") > 0 ? $request->input("playerId") : $player->id);
+        $game->players_id = ($request->input("playerId") > 0 ? $request->input("playerId") : $player->id);
         $game->size = $request->input("size");
+        $game->grid_id = $grid->id;
         $game->save();
 
-        return redirect("/games/".$gama->id);
+        return redirect("/games/".$game->id."/play");
     }
 
     /**
@@ -59,10 +77,13 @@ class GamesController extends Controller
      * @param  \App\Games  $games
      * @return \Illuminate\Http\Response
      */
-    public function show(Games $games)
+    public function show(Games $game)
     {
-        $game = Games::find($games);
-        dd($game);
+        $gameP = Games::find($game)->last();
+        $grid = Grids::find($gameP->grid_id);        
+        //$squares = Squares::where('grid_id',$grid->id)->get();
+
+        return view('grid.show', compact('gameP', 'grid'));
     }
 
     /**
@@ -98,4 +119,36 @@ class GamesController extends Controller
     {
         //
     }
+
+    /**
+     * Validate if the square is a Bomb or not
+     * 
+     * @param $square
+     * @return \Illuminate\Http\Response
+     */
+    public function valildateClick( $game,Request $request)
+    {   
+        $sqr = Squares::findOrFail( $request->input("sqareId") );        
+        $resp= array($sqr->content,$sqr->id);
+        return $resp;
+                 
+    }
+
+    private function setSquares( $bombs, $size, $grid_id )
+	{
+		for ($i=1; $i <= $size; $i++) { 
+			for ($j=1; $j <= $size; $j++) { 
+
+				$number = in_array( ((($i-1)*$size) + $j) , $bombs) ? 10 : 0;
+
+				$square = new Squares;
+				$square->grids_id = $grid_id;
+				$square->x = $j;
+				$square->y = $i;
+				$square->discover = false;
+				$square->content = $number;
+				$square->save();
+			}
+		}
+	}
 }

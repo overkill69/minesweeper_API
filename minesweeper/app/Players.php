@@ -8,8 +8,8 @@ class Players extends Model
 {
     protected $table = "players";
 
-    public function game()
+    public function games()
     {
-        return $this->belongsTo('App\Games');
+        return $this->hasMany('App\Games');
     }
 }

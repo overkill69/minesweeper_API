@@ -19,7 +19,8 @@ Route::get('/', function () {
 
 
 Route::get('/games', 'GamesController@index');
-Route::get('/games/{game}', 'GamesController@show');
+Route::get('/games/{game}/play', 'GamesController@show');
 Route::get('/newGame', 'GamesController@create');
 Route::post('/games', 'GamesController@store');
+Route::post('/games/{game}/validate', 'GamesController@valildateClick');
 Route::get('/ContinueGame', 'GamesController@index');
