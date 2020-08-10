@@ -76,6 +76,14 @@
                 width: 25%;
                 padding: 0px 5px;
             }
+            .btn{
+                padding: 1.375rem 1.75rem !important;
+            }
+
+            input, select{
+                width:250px;
+            }
+            
         </style>
 
     </head>

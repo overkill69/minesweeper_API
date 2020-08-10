@@ -26,9 +26,9 @@
                                 <option value="2">{{ $player->name }}</option>
                                 @endforeach
                             </select>
-                            @else
-                            <input name="player" id="player" placeholder="create a new player"/>
                             @endif
+                            <input name="player" id="player" placeholder="or create a new player"/>
+                            
                         </div>
                         
                     </div>
