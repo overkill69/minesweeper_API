@@ -120,19 +120,7 @@ class GamesController extends Controller
         //
     }
 
-    /**
-     * Validate if the square is a Bomb or not
-     * 
-     * @param $square
-     * @return \Illuminate\Http\Response
-     */
-    public function valildateClick( $game,Request $request)
-    {   
-        $sqr = Squares::findOrFail( $request->input("sqareId") );        
-        $resp= array($sqr->content,$sqr->id);
-        return $resp;
-                 
-    }
+    
 
     private function setSquares( $bombs, $size, $grid_id )
 	{
@@ -150,5 +138,6 @@ class GamesController extends Controller
 				$square->save();
 			}
 		}
-	}
+    }
+
 }

@@ -15,7 +15,7 @@
 										@foreach ($grid->squares as $square)
 											@if( ($square->x == (string)$i) && ($square->y == (string)$j) )
 												@if($square->discover == false)
-													<button class=" btn btn-secondary" id="{{$square->id}}"><i>X</i></button>
+													<button class=" btn btn-secondary" id="{{$square->id}}"><i>{{$square->id}} !! x={{$square->x }} || {{$square->y}}</i></button>
 												@else
 													{{ $square->content != '0' ? $square->content : '' }}
 												@endif
@@ -41,16 +41,17 @@
 $(document).ready(function(){
 
 	$(".btn-secondary").on('click', function(){
-		alert($(this).attr("id"));
+		//alert($(this).attr("id"));
 		clicked = $(this);
-		$.post("/games/{{ $gameP->id }}/validate",{'sqareId': $(this).attr("id") })
-		.done(function(data){				
-			if(data[0] == 10){
-				alert("entra??? " + clicked.attr('id'));
-				clicked.removeClass('btn-secondary').addClass('btn-danger');
-			} else {
-				clicked.removeClass('btn-secondary').addClass('btn-success');
-			}			
+		$.post("/games/{{ $gameP->id }}/events",{'sqareId': $(this).attr("id"), 'event': "reveal" })
+		.done(function(data){
+			//alert(data);
+			$.each(data, function(gg){
+				//alert(data[gg].id);
+				if(data[gg].id != undefined){				
+					$("#"+data[gg].id).removeClass('btn-secondary').addClass('btn-success');
+				}
+			});			
 		});
 	})
 
