@@ -7,7 +7,7 @@
                 <div class="row justify-content-center">
                     <div class="col-12">New Game</div>
                 </div>
-                <form action="/games/" method="post" role="form" >
+                <form action="/api/games/" method="post" role="form" >
                     @csrf 
                     <div class="row">
                         <div class="col-md-3">Name:</div>
@@ -23,7 +23,7 @@
                             <select name="playerId" id="playerId">
                                 <option value="0" selected>Select a player</option>
                                 @foreach($players as $player )
-                                <option value="2">{{ $player->name }}</option>
+                                <option value="{{$player->id}}">{{ $player->name }}</option>
                                 @endforeach
                             </select>
                             @endif

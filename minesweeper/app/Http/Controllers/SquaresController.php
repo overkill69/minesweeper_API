@@ -70,7 +70,30 @@ class SquaresController extends Controller
      */
     public function update(Request $request, Squares $squares)
     {
-        //
+        //dd($request);
+        $event = $request->input("event");
+        switch ($event){
+            case "reveal":
+                $sqr = Squares::findOrFail( $request->input("sqareId") );     
+                $resp = $this->_revealSquares($sqr);
+            break;
+
+            case "updateStatus":
+                if($request->input("status") == "question"){
+                    $sqr = Squares::findOrFail( $request->input("sqareId") );     
+                    $this->_questionCell();
+                } else {
+                    $sqr = Squares::findOrFail( $request->input("sqareId") );     
+                    $this->_flagCell();
+                }
+                
+            break;
+
+            case "revealAllBombs":                
+                $resp = $this->_revealBombs();
+            break;
+        }
+        return $resp;                 
     }
 
     /**
@@ -84,39 +107,6 @@ class SquaresController extends Controller
         //
     }
 
-    /**
-     * Validate if the square is a Bomb or not
-     * 
-     * @param $square
-     * @return \Illuminate\Http\Response
-     */
-    public function valildateClick( $game, Request $request)
-    {   
-        
-        $event = $request->input("event");
-        switch ($event){
-            case "reveal":
-                $sqr = Squares::findOrFail( $request->input("sqareId") );     
-                $resp = $this->_revealSquares($sqr);
-            break;
-
-            case "question":
-                $sqr = Squares::findOrFail( $request->input("sqareId") );     
-                $this->_questionCell();
-            break;
-
-            case "flag";
-                $sqr = Squares::findOrFail( $request->input("sqareId") );     
-                $this->_flagCell();
-            break;
-
-            case "revealAllBombs":                
-                $resp = $this->_revealBombs();
-            break;
-        }
-        return $resp;                 
-    }
-
     private function _revealBombs(){
         $sqr = Squares::where("content", "=", 10 )->get();
         return $sqr;
@@ -126,7 +116,7 @@ class SquaresController extends Controller
     {
         $content = $sqr->content;
         if($content !== "10"){
-            $surroundings = $this->chechSurroundingSquares($sqr);
+            $surroundings = $this->_chechSurroundingSquares($sqr);
         } else {
             return "Boom!";
         }
@@ -140,7 +130,7 @@ class SquaresController extends Controller
      * @return $response array
      */
 
-     private function chechSurroundingSquares($sqr)
+     private function _chechSurroundingSquares($sqr)
      {
         $reveal = [];
         $reveal[0] = $sqr;
@@ -148,35 +138,35 @@ class SquaresController extends Controller
         
         // check if there's a square up
         if($sqr->x > 1){
-            $up = Squares::where('x','=',($sqr->x - 1))->where("y","=", $sqr->y)->get();                  
+            $up = Squares::where('x','=',($sqr->x - 1))->where("y","=", $sqr->y)->where('grids_id','=',$sqr->grids_id)->get();                  
         }
         // check if there's a square up left
         if($sqr->x > 1 && $sqr->y > 1 ){
-            $upLeft = Squares::where('x','=',($sqr->x - 1))->where("y","=", ($sqr->y - 1))->get();
+            $upLeft = Squares::where('x','=',($sqr->x - 1))->where("y","=", ($sqr->y - 1))->where('grids_id','=',$sqr->grids_id)->get();
         }
         // check if there's a square left
         if($sqr->y > 1 ){
-            $left = Squares::where('y','=',($sqr->y - 1))->where("x","=", $sqr->x)->get();
+            $left = Squares::where('y','=',($sqr->y - 1))->where("x","=", $sqr->x)->where('grids_id','=',$sqr->grids_id)->get();
         }
         // check if there's a square down left
         if($sqr->x < $grid->height && $sqr->y > 1 ){            
-            $downLeft = Squares::where('x','=',($sqr->x + 1))->where("y","=", ($sqr->y - 1))->get();            
+            $downLeft = Squares::where('x','=',($sqr->x + 1))->where("y","=", ($sqr->y - 1))->where('grids_id','=',$sqr->grids_id)->get();            
         }
         //check if tere's a sqaure down
         if($sqr->x < $grid->height){
-            $down = Squares::where('x','=',($sqr->x + 1))->where("y","=", $sqr->y)->get();                        
+            $down = Squares::where('x','=',($sqr->x + 1))->where("y","=", $sqr->y)->where('grids_id','=',$sqr->grids_id)->get();                        
         }
         // check if there's a square down right
         if($sqr->x < $grid->height && $sqr->y < $grid->width ){            
-            $downRight = Squares::where('x','=',($sqr->x + 1))->where("y","=", ($sqr->y + 1))->get();            
+            $downRight = Squares::where('x','=',($sqr->x + 1))->where("y","=", ($sqr->y + 1))->where('grids_id','=',$sqr->grids_id)->get();            
         }
         //check if tere's a sqaure right
         if($sqr->y < $grid->width){
-            $right = Squares::where('y','=',($sqr->y + 1))->where("x","=", $sqr->x)->get();                        
+            $right = Squares::where('y','=',($sqr->y + 1))->where("x","=", $sqr->x)->where('grids_id','=',$sqr->grids_id)->get();                        
         }
         // check if there's a square up right
         if($sqr->x > 1 && $sqr->y < $grid->width ){            
-            $upRight = Squares::where('x','=',($sqr->x - 1))->where("y","=", ($sqr->y + 1))->get();            
+            $upRight = Squares::where('x','=',($sqr->x - 1))->where("y","=", ($sqr->y + 1))->where('grids_id','=',$sqr->grids_id)->get();            
         }
         
         if( true === ( isset($up)) && $up[0]->content !== 10){

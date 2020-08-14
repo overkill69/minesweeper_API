@@ -2,9 +2,9 @@
 
 @section('content')
                 <div class="links">
-                    <a href="/newGame">New Game</a>
+                    <a href="/new-game">New Game</a>
                 </div>
                 <div class="links">
-                    <a href="/games">Continue Game</a>
+                    <a href="/boards">Continue Game</a>
                 </div>
 @endsection

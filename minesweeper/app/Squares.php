@@ -15,7 +15,7 @@ class Squares extends Model
 
 	public function grids()
 	{
-		return $this->belongsTo('App\Grids');
+		return $this->belongsTo('App\Grids', 'grid_id');
 	}
 
 }

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Games;
-use App\Players;
+use App\User;
 use App\Grids;
 use App\Squares;
 use Illuminate\Http\Request;
@@ -17,19 +17,9 @@ class GamesController extends Controller
      */
     public function index()
     {
-        $games = Games::all();
-        return view('games.index', ['games' => $games]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        $players = Players::all();
-        return view('games.create', ["players" =>$players]);
+        
+        $games = Games::with('users')->get();      
+        return response()->json($games,200);
     }
 
     /**
@@ -40,7 +30,7 @@ class GamesController extends Controller
      */
     public function store(Request $request)
     {
-        // if is nrew player creates and then create the game
+        // if is new player creates and then create the game
 
         if(!$request->input("playerId")){
             $player = new Players();
@@ -63,12 +53,15 @@ class GamesController extends Controller
         /*** */
         $game = new Games();
         $game->name = $request->input("name");
-        $game->players_id = ($request->input("playerId") > 0 ? $request->input("playerId") : $player->id);
+        $game->user_id = ($request->input("playerId") > 0 ? $request->input("playerId") : $player->id);
         $game->size = $request->input("size");
         $game->grid_id = $grid->id;
         $game->save();
 
-        return redirect("/games/".$game->id."/play");
+        return redirect("/boards");
+        return response()->json([
+            "message" => "game record created"
+        ], 201);
     }
 
     /**
@@ -79,11 +72,11 @@ class GamesController extends Controller
      */
     public function show(Games $game)
     {
-        $gameP = Games::find($game)->last();
-        $grid = Grids::find($gameP->grid_id);        
-        //$squares = Squares::where('grid_id',$grid->id)->get();
-
-        return view('grid.show', compact('gameP', 'grid'));
+        $thisGame = Games::findOrFail($game->id)->with('grid.squares')->get();
+        
+        return response()->json([
+            "game" => $thisGame
+        ], 200);
     }
 
     /**

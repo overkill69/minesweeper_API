@@ -16,11 +16,11 @@ class CreateGamesTable extends Migration
         Schema::create('games', function (Blueprint $table) {
             $table->id();
             $table->string("name");            
-            $table->integer("size");
-            $table->bigInteger("players_id")->unsigned();
+            $table->integer("size");            
             $table->timestamp("completed_at");
-            $table->timestamps();            
-            $table->foreign("players_id")->references("id")->on("players");
+            $table->timestamps();                        
+            $table->bigInteger("user_id")->unsigned();
+            $table->foreign("user_id")->references("id")->on("users");
         });
     }
 

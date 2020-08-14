@@ -76,7 +76,12 @@
                 width: 25%;
                 padding: 0px 5px;
             }
-            .btn{
+            #container-board{
+                text-align:center;
+                /*display : block; */
+                padding : 5px auto !important;
+            }
+            .btn-game{
                 padding: 1.375rem 1.75rem !important;
             }
 
@@ -104,7 +109,7 @@
             @endif
             <div class="content container-fluid">
                 <div class="title m-b-md">
-                    MINESWEEPER
+                    <a href="/">MINESWEEPER</a>
                 </div>
             @yield('content')
             </div>
@@ -117,7 +122,7 @@
                 }
             });
         </script>
-        @yield("javascripts");
+        @yield("javascripts")
 
     </body>
 
