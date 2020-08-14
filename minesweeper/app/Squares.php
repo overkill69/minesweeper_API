@@ -10,7 +10,8 @@ class Squares extends Model
 	protected $fillable = [
 		'x',
 		'y',
-		'content'
+		'content',
+		'discover'
 	];
 
 	public function grids()

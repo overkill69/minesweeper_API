@@ -13,8 +13,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/boards/{game}', 'HomeController@show');
     Route::get('/new-game', 'HomeController@create');
     //Route::post('/games', 'GamesController@store');
-    Route::put('/games/{game}/events', 'SquaresController@update');    
-    Route::get('/games/{game}', 'GamesController@show');    
+    //Route::put('/games/{game}/events', 'SquaresController@update');    
+    //Route::get('/games/{game}', 'GamesController@show');    
 });
 
 Route::get('/home', 'HomeController@index')->name('home');

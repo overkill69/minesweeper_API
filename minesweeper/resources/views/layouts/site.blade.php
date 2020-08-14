@@ -78,17 +78,28 @@
             }
             #container-board{
                 text-align:center;
-                /*display : block; */
+                display : inline-table; 
                 padding : 5px auto !important;
             }
             .btn-game{
                 padding: 1.375rem 1.75rem !important;
             }
 
+            .btn-flag{
+                background: url({{url("assets/img/flag.png")}}) 8px 10px no-repeat;
+            }
+            
+            .btn-danger{
+                background: url({{url("assets/img/mine.png")}}) 7px 9px no-repeat;
+                background-color: #dc3545;
+            }
             input, select{
                 width:250px;
             }
-            
+            .cell{
+                width: 50px;
+                height: 50px;
+            }
         </style>
 
     </head>

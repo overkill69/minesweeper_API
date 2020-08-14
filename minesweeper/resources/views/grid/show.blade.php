@@ -11,14 +11,18 @@
 						@for( $i = 1; $i <= $gameP->game[0]->grid->height; $i++ )
 							<tr>
 								@for( $j = 1; $j <= $gameP->game[0]->grid->width; $j++ )
-									<td align="center" width="40" height="40">
+									<td align="center" width="40" height="40" class="cell">
 										
 										@foreach ($gameP->game[0]->grid->squares as $square)
 											@if( ($square->x == (string)$i) && ($square->y == (string)$j) )
 												@if($square->discover == false)
 													<button class=" btn btn-secondary btn-game" id="{{$square->id}}"><i>&nbsp;</i></button>
 												@else
-													{{ $square->content != '0' ? $square->content : '' }}
+													@if($square->content == 10)
+														<button class=" btn btn-game btn-danger" id="{{$square->id}}"><i>&nbsp;</i></button>													
+													@else
+														<button class=" btn  btn-game btn-link" id="{{$square->id}}"><i>&nbsp;</i></button>
+													@endif													
 												@endif
 											@endif
 										@endforeach 
@@ -47,7 +51,7 @@ $(document).ready(function(){
 	$(".btn-secondary").on('click', function(){
 		clicked = $(this);
 		$.ajax({
-			url: "/games/{{ $gameP->game[0]->id }}/events",
+			url: "/api/games/{{ $gameP->game[0]->id }}",
 			type: 'PUT',
 			data: {'sqareId': $(this).attr('id'), 'event': 'reveal', 'gameId' : '{{ $gameP->game[0]->id }}'}
 		}).done(function(data){		
@@ -61,7 +65,7 @@ $(document).ready(function(){
 						$("#"+data[gg].id).removeClass('btn-secondary').addClass('btn-danger');
 						$(':button').prop('disabled', true);
 						alert("GAME OVER!!!!");
-						revealBombs();
+						revealBombs(clicked);
 						return false;
 					} 										
 				}
@@ -69,14 +73,13 @@ $(document).ready(function(){
 		});
 	});
 
-	function revealBombs(){
+	function revealBombs(origin){		
 		$.ajax({
-			url:"/games/{{ $gameP->game[0]->id }}/events",
+			url:"/api/games/{{ $gameP->game[0]->id }}",
 			type: "PUT",
-			data:{'event': "revealAllBombs" }
+			data:{'sqareId': $(origin).attr('id'),'event': "revealAllBombs" }
 		})
-		.done(function(data){				
-
+		.done(function(data){
 			$.each(data, function(gg){	
 				console.log(data[gg].id);			
 				$("#"+data[gg].id).removeClass('btn-secondary').addClass('btn-danger');				
@@ -84,31 +87,32 @@ $(document).ready(function(){
 		});
 	}
 
-	/*$('.btn-secondary').on('contextmenu', function(e) {
+/*	$('.btn-secondary').on('contextmenu', function(e) {
 		var top = e.pageY - 10;
 		var left = e.pageX - 90;
 		var clicked = $(this);
+		
 		$("#context-menu").css({
 			display: "block",
 			top: top,
 			left: left
 		}).addClass("show");
 			return false; //blocks default Webbrowser right click menu
-		}).on("click", function() {
-			alert($(this).id);
+		}).on("click", function(clicked) {
+			alert(clicked.id);
 			updateStatus(status, clicked.id)
 			$("#context-menu").removeClass("show").hide();
 	});
 
 	$("#context-menu a").on("click", function() {
-		alert($(this).parent().parent().id);
+		alert($(this).id);
 		updateStatus(status, clicked.id)
 		$(this).parent().removeClass("show").hide();
 	});
 
 	function updateStatus(status, SqtId){
 		$.ajax({
-			url:"/games/{{ $gameP->game[0]->id }}/events",
+			url:"/api/games/{{ $gameP->game[0]->id }}",
 			type: "PUT",
 			data:{'event': "updateStatus", 'status': status ,'sqareId': SqtId }
 		})

@@ -99,7 +99,31 @@ class GamesController extends Controller
      */
     public function update(Request $request, Games $games)
     {
-        //
+        $event = $request->input("event");
+        
+        switch ($event){
+            case "reveal":
+                $sqr = Squares::findOrFail( $request->input("sqareId") );     
+                $resp = $this->_revealSquares($sqr);
+            break;
+
+            case "updateStatus":
+                if($request->input("status") == "question"){
+                    $sqr = Squares::findOrFail( $request->input("sqareId") );     
+                    $this->_questionCell();
+                } else {
+                    $sqr = Squares::findOrFail( $request->input("sqareId") );     
+                    $this->_flagCell();
+                }
+                
+            break;
+
+            case "revealAllBombs":                
+                $sqr = Squares::findOrFail( $request->input("sqareId") );     
+                $resp = $this->_revealBombs( $sqr );
+            break;
+        }
+        return $resp;    
     }
 
     /**
@@ -133,4 +157,139 @@ class GamesController extends Controller
 		}
     }
 
+    private function _revealBombs( Squares $sqr ){
+        
+        $sq = Squares::where("content", "=", 10 )->where('grids_id','=',$sqr->grids_id)->get();
+        return $sq;
+    }
+
+    private function _revealSquares( Squares $sqr)
+    {
+        $content = $sqr->content;
+        if($content !== "10"){
+            $surroundings = $this->_chechSurroundingSquares($sqr);
+        } else {            
+            $game = Games::where('grid_id', "=",$sqr->grids_id)->first();
+            dd($game);
+            return "Boom!";
+        }
+        return $surroundings;
+    }
+
+    /**
+     * find the surrouding squares to th given
+     * 
+     * @param $sqr Square
+     * @return $response array
+     */
+
+     private function _chechSurroundingSquares($sqr)
+     {
+        $reveal = [];
+        $sq = Squares::where("id", "=", $sqr->id )->first();
+        $sq->discover = 1;
+        
+        $sq->save();
+        $reveal[0] = $sqr;        
+        $grid = Grids::findOrFail($sqr->grids_id);
+        
+        // check if there's a square up
+        if($sqr->x > 1){
+            $up = Squares::where('x','=',($sqr->x - 1))->where("y","=", $sqr->y)->where('grids_id','=',$sqr->grids_id)->first();                  
+            $up->discover = 1;
+            $up->save();
+        }
+        // check if there's a square up left
+        if($sqr->x > 1 && $sqr->y > 1 ){
+            $upLeft = Squares::where('x','=',($sqr->x - 1))->where("y","=", ($sqr->y - 1))->where('grids_id','=',$sqr->grids_id)->first();
+            $upLeft->discover = 1 ;
+            $upLeft->save();
+        }
+        // check if there's a square left
+        if($sqr->y > 1 ){
+            $left = Squares::where('y','=',($sqr->y - 1))->where("x","=", $sqr->x)->where('grids_id','=',$sqr->grids_id)->first();
+            $left->discover = 1 ;
+            $left->save();
+        }
+        // check if there's a square down left
+        if($sqr->x < $grid->height && $sqr->y > 1 ){            
+            $downLeft = Squares::where('x','=',($sqr->x + 1))->where("y","=", ($sqr->y - 1))->where('grids_id','=',$sqr->grids_id)->first();            
+            $downLeft->discover = 1 ;
+            $downLeft->save();
+        }
+        //check if tere's a sqaure down
+        if($sqr->x < $grid->height){
+            $down = Squares::where('x','=',($sqr->x + 1))->where("y","=", $sqr->y)->where('grids_id','=',$sqr->grids_id)->first();                        
+            $down->discover = 1 ;
+            $down->save();
+        }
+        // check if there's a square down right
+        if($sqr->x < $grid->height && $sqr->y < $grid->width ){            
+            $downRight = Squares::where('x','=',($sqr->x + 1))->where("y","=", ($sqr->y + 1))->where('grids_id','=',$sqr->grids_id)->first();            
+            $downRight->discover = 1 ;
+            $downRight->save();
+        }
+        //check if tere's a sqaure right
+        if($sqr->y < $grid->width){
+            $right = Squares::where('y','=',($sqr->y + 1))->where("x","=", $sqr->x)->where('grids_id','=',$sqr->grids_id)->first();                        
+            $right->discover = 1 ;
+            $right->save();
+        }
+        // check if there's a square up right
+        if($sqr->x > 1 && $sqr->y < $grid->width ){            
+            $upRight = Squares::where('x','=',($sqr->x - 1))->where("y","=", ($sqr->y + 1))->where('grids_id','=',$sqr->grids_id)->first();            
+            $upRight->discover = 1 ;
+            $upRight->save();
+        }
+        
+        if( true === ( isset($up)) && $up->content !== 10){
+            $reveal[1] = $up;            
+        } else {
+            $reveal[1] = "BOMB";            
+        }
+
+        if(isset($down) && $down->content !== 10){
+            $reveal[2] = $down;
+        } else {
+            $reveal[2] = "BOMB";            
+        }
+        
+        if(isset($left) && $left->content !== 10){
+            $reveal[3] = $left;
+        } else {
+            $reveal[3] = "BOMB";            
+        }
+
+        if(isset($right) && $right->content !== 10){
+            $reveal[4] = $right;
+        } else {
+            $reveal[4] = "BOMB";            
+        }
+        
+        if(isset($upLeft) && $upLeft->content !== 10){
+            $reveal[5] = $upLeft;            
+        } else {
+            $reveal[5] = "BOMB";            
+        }
+        
+        if(isset($downLeft) && $downLeft->content !== 10){
+            $reveal[6] = $downLeft;
+        } else {
+            $reveal[6] = "BOMB";            
+        }
+
+        if(isset($upRight) && $upRight->content !== 10){
+            $reveal[7] = $upRight;
+        } else {
+            $reveal[7] = "BOMB";            
+        }
+
+        if(isset($downRight) && $downRight->content !== 10){
+            $reveal[8] = $downRight;
+        } else {
+            $reveal[8] = "BOMB";            
+        }
+                
+        return($reveal);
+     }
 }
