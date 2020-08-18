@@ -58,10 +58,7 @@ class GamesController extends Controller
         $game->grid_id = $grid->id;
         $game->save();
 
-        return redirect("/boards");
-        return response()->json([
-            "message" => "game record created"
-        ], 201);
+        return redirect("/boards");        
     }
 
     /**
@@ -70,10 +67,11 @@ class GamesController extends Controller
      * @param  \App\Games  $games
      * @return \Illuminate\Http\Response
      */
-    public function show(Games $game)
+    public function show(Request $request, $games)
     {
-        $thisGame = Games::findOrFail($game->id)->with('grid.squares')->get();
-        
+        //dd($games);
+        $thisGame = Games::where("id", "=", $games)->with('grid.squares')->get();
+        dd($thisGame);
         return response()->json([
             "game" => $thisGame
         ], 200);

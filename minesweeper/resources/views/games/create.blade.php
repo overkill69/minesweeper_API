@@ -7,8 +7,9 @@
                 <div class="row justify-content-center">
                     <div class="col-12">New Game</div>
                 </div>
-                <form action="/api/games/" method="post" role="form" >
+                <form action="/api/games" method="post" role="form" >
                     @csrf 
+                    @method('POST')
                     <div class="row">
                         <div class="col-md-3">Name:</div>
                         <div class="col-md-9  text-justify">
@@ -27,8 +28,7 @@
                                 @endforeach
                             </select>
                             @endif
-                            <input name="player" id="player" placeholder="or create a new player"/>
-                            
+                            <!--input name="player" id="player" placeholder="or create a new player"/-->                            
                         </div>
                         
                     </div>

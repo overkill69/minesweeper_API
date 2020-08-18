@@ -87,11 +87,11 @@ $(document).ready(function(){
 		});
 	}
 
-/*	$('.btn-secondary').on('contextmenu', function(e) {
+	$('.btn-secondary').on('contextmenu', function(e) {
 		var top = e.pageY - 10;
 		var left = e.pageX - 90;
 		var clicked = $(this);
-		
+		console.log(clicked.id);
 		$("#context-menu").css({
 			display: "block",
 			top: top,
@@ -122,7 +122,7 @@ $(document).ready(function(){
 				$("#"+data[gg].id).removeClass('btn-secondary').addClass('btn-danger');				
 			});			
 		});
-	}*/
+	}
 });
 </script>
 

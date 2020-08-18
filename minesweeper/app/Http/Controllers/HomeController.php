@@ -41,8 +41,8 @@ class HomeController extends Controller
         $response = $this->_client->request('GET', "users");        
         $body = $response->getBody();        
         $players = json_decode($body);
-        //dd($players);
-        return view('games.create', ["players" =>$players]);
+        
+        return view('games.create', ["players" => $players]);
     }
 
 
@@ -55,8 +55,9 @@ class HomeController extends Controller
     {
         
         $response = $this->_client->request('GET', "games");        
-        $body = $response->getBody();                
-        return view('games.index', compact('games', json_decode($body)));
+        $body = $response->getBody();    
+        
+        return view('games.index', ["games" => json_decode($body)]);
     }
 
     /**
@@ -67,9 +68,11 @@ class HomeController extends Controller
      */
     public function show(request $request, $game)
     {        
-        $response = $this->_client->request('GET', "games/$game");
-        $t = json_decode($response->getBody());                  
         
+        $response = $this->_client->request('GET', "games/".$game);
+
+        $t = json_decode($response->getBody());                  
+        dd($t);
         return view('grid.show', ["gameP"=>$t]);
     }
 }
