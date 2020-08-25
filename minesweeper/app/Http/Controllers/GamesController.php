@@ -6,6 +6,7 @@ use App\Games;
 use App\User;
 use App\Grids;
 use App\Squares;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class GamesController extends Controller
@@ -30,16 +31,10 @@ class GamesController extends Controller
      */
     public function store(Request $request)
     {
-        // if is new player creates and then create the game
-
-        if(!$request->input("playerId")){
-            $player = new Players();
-            $player->name = $request->input("player");
-            $player->save();
-        }
+        /* generate the grid */
         $grid = new Grids();
         $grid->width = $grid->height = $request->input("size");
-        $grid->bombs = $request->input("num-bombs");
+        $grid->bombs = $request->input("num-bombs");        
         $grid->save();
         /* Set the bombs*/
         $bombs = array();
@@ -53,9 +48,10 @@ class GamesController extends Controller
         /*** */
         $game = new Games();
         $game->name = $request->input("name");
-        $game->user_id = ($request->input("playerId") > 0 ? $request->input("playerId") : $player->id);
+        $game->user_id = $request->input("playerId");
         $game->size = $request->input("size");
         $game->grid_id = $grid->id;
+        $game->completed_at = NULL;
         $game->save();
 
         return redirect("/boards");        
@@ -67,11 +63,9 @@ class GamesController extends Controller
      * @param  \App\Games  $games
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, $games)
-    {
-        //dd($games);
-        $thisGame = Games::where("id", "=", $games)->with('grid.squares')->get();
-        dd($thisGame);
+    public function show($game)
+    {        
+        $thisGame = Games::where("id", "=", $game)->with('grid.squares')->get();
         return response()->json([
             "game" => $thisGame
         ], 200);
@@ -85,7 +79,7 @@ class GamesController extends Controller
      */
     public function edit(Games $games)
     {
-        //
+        dd("aca???");
     }
 
     /**
@@ -95,7 +89,7 @@ class GamesController extends Controller
      * @param  \App\Games  $games
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Games $games)
+    public function update( Games $games, Request $request)
     {
         $event = $request->input("event");
         
@@ -108,10 +102,10 @@ class GamesController extends Controller
             case "updateStatus":
                 if($request->input("status") == "question"){
                     $sqr = Squares::findOrFail( $request->input("sqareId") );     
-                    $this->_questionCell();
+                    $resp = $this->_questionCell($sqr);
                 } else {
                     $sqr = Squares::findOrFail( $request->input("sqareId") );     
-                    $this->_flagCell();
+                    $resp = $this->_flagCell($sqr);                
                 }
                 
             break;
@@ -121,6 +115,16 @@ class GamesController extends Controller
                 $resp = $this->_revealBombs( $sqr );
             break;
         }
+        $gg = DB::table('games')
+        ->join('grids', 'games.grid_id',"=", 'grids.id')
+        ->join('squares', 'squares.grids_id',"=", 'grids.id')
+        ->select('games.grid_id')
+        ->where('squares.id', '=', $request->input("sqareId"))
+        ->where('games.status', '!=', 1)
+        ->first();
+        //dd($gg);
+        $c = $this->_checkFinish($gg->grid_id);
+dd($c);
         return $resp;    
     }
 
@@ -135,7 +139,19 @@ class GamesController extends Controller
         //
     }
 
+    private function _flagCell(Squares $squares)
+    {
+        $squares->discover = 2; //question;
+        $squares->save();
+        return $squares;
+    }
     
+    private function _questionCell(Squares $squares)
+    {        
+        $squares->discover = 3; //question;
+        $squares->save();
+        return $squares;
+    }
 
     private function setSquares( $bombs, $size, $grid_id )
 	{
@@ -158,7 +174,25 @@ class GamesController extends Controller
     private function _revealBombs( Squares $sqr ){
         
         $sq = Squares::where("content", "=", 10 )->where('grids_id','=',$sqr->grids_id)->get();
+        $gam = Games::where("grid_id", "=", $sqr->grids_id)->first();
+        $gam->staus = 1;//finished by bombs;
+        $gam->save();
         return $sq;
+    }
+
+    private function _checkFinish($grid)
+    {        
+        $ch = Squares::where("grids_id", "=", $grid)->where("discover", "=", 0 )->where("content", "!=" ,10)->count('id');
+        dd($ch);
+        if ($ch > 0){            
+            return 0;
+        } else {
+            $game = Games::Where("grid_id", "=", $grid)->get();
+            $game->status = 1;
+            $game->completed_at = date("Y-m-d H:i:s");
+            $game->save();
+            return 1;
+        }
     }
 
     private function _revealSquares( Squares $sqr)
@@ -168,7 +202,6 @@ class GamesController extends Controller
             $surroundings = $this->_chechSurroundingSquares($sqr);
         } else {            
             $game = Games::where('grid_id', "=",$sqr->grids_id)->first();
-            dd($game);
             return "Boom!";
         }
         return $surroundings;

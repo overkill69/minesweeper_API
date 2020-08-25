@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use App\User;
+use App\Games;
 
 class HomeController extends Controller
 {
@@ -66,13 +67,11 @@ class HomeController extends Controller
      * @param  \App\Games  $games
      * @return \Illuminate\Http\Response
      */
-    public function show(request $request, $game)
+    public function show( $game, request $request)
     {        
-        
-        $response = $this->_client->request('GET', "games/".$game);
-
+        $response = $this->_client->request('GET', "games/".$game);        
         $t = json_decode($response->getBody());                  
-        dd($t);
+        
         return view('grid.show', ["gameP"=>$t]);
     }
 }

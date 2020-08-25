@@ -19,9 +19,15 @@
 													<button class=" btn btn-secondary btn-game" id="{{$square->id}}"><i>&nbsp;</i></button>
 												@else
 													@if($square->content == 10)
-														<button class=" btn btn-game btn-danger" id="{{$square->id}}"><i>&nbsp;</i></button>													
+														<button class=" btn btn-game btn-danger" id="{{$square->id}}" disable="disable"><i>&nbsp;</i></button>													
 													@else
-														<button class=" btn  btn-game btn-link" id="{{$square->id}}"><i>&nbsp;</i></button>
+														@if($square->discover == 3)
+														<button class=" btn  btn-game btn-question" id="{{$square->id}}" disable="disable"><i>&nbsp;</i></button>
+														@elseif($square->discover == 2)
+														<button class=" btn  btn-game btn-flag" id="{{$square->id}}" disable="disable"><i>&nbsp;</i></button>
+														@else
+														<button class=" btn  btn-game btn-link" id="{{$square->id}}" disable="disable"><i>&nbsp;</i></button>
+														@endif
 													@endif													
 												@endif
 											@endif
@@ -48,6 +54,8 @@
 <script>
 $(document).ready(function(){
 
+	var lastClick;
+	
 	$(".btn-secondary").on('click', function(){
 		clicked = $(this);
 		$.ajax({
@@ -90,23 +98,21 @@ $(document).ready(function(){
 	$('.btn-secondary').on('contextmenu', function(e) {
 		var top = e.pageY - 10;
 		var left = e.pageX - 90;
-		var clicked = $(this);
-		console.log(clicked.id);
+		var clicked = $(this).attr('id');
+		//console.log(clicked);
+		lastClick = clicked;
 		$("#context-menu").css({
 			display: "block",
 			top: top,
 			left: left
 		}).addClass("show");
 			return false; //blocks default Webbrowser right click menu
-		}).on("click", function(clicked) {
-			alert(clicked.id);
-			updateStatus(status, clicked.id)
+		}).on("click", function(clicked) {			
 			$("#context-menu").removeClass("show").hide();
 	});
 
 	$("#context-menu a").on("click", function() {
-		alert($(this).id);
-		updateStatus(status, clicked.id)
+		updateStatus($(this).attr('id'), lastClick)
 		$(this).parent().removeClass("show").hide();
 	});
 
@@ -118,9 +124,28 @@ $(document).ready(function(){
 		})
 		.done(function(data){					
 			$.each(data, function(gg){	
-				//console.log(data[gg].id);			
-				$("#"+data[gg].id).removeClass('btn-secondary').addClass('btn-danger');				
+				if(data.discover === 2){
+					$("#"+data.id).removeClass('btn-secondary').addClass('btn-flag');				
+				}if(data.discover === 3){				
+					$("#"+data.id).removeClass('btn-secondary').addClass('btn-question');				
+				}
 			});			
+		});
+	}
+
+	
+	function doAjax() {
+		$.ajax({
+				url:"/api/games/{{ $gameP->game[0]->id }}",
+				type: "PUT",
+				data:{'event': "updateStatus", 'status': status ,'sqareId': SqtId },
+				dataType: 'json',
+				success: function (data) {
+					if(data == 1){
+						$
+					}
+				}
+				
 		});
 	}
 });

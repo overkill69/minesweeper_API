@@ -21,7 +21,11 @@
                             <div class="col-md-3 col-data">{{ $game->users->name }}</div>
                             <div class="col-md-3 col-data">{{ $game->size }} * {{ $game->size }}</div>
                             <div class="col-md-3 col-data">
-                                <a href="/boards/{{ $game->id }}" class="btn btn-primary" role="button">Play</a>
+                                @if( $game->status != 1)
+                                    <a href="/boards/{{ $game->id }}" class="btn btn-primary" role="button">Play</a>
+                                @else
+                                    <a href="/boards/{{ $game->id }}" class="btn btn-info" role="button">view results</a>
+                                @endif
                                 <a href="/boards/{{ $game->id }}/delete" class="btn btn-warning" role="button">Delete</a>
                             </div>
                         </div>

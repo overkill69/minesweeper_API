@@ -88,6 +88,10 @@
             .btn-flag{
                 background: url({{url("assets/img/flag.png")}}) 8px 10px no-repeat;
             }
+
+            .btn-question{
+                background: url({{url("assets/img/question.png")}}) 8px 10px no-repeat;
+            }
             
             .btn-danger{
                 background: url({{url("assets/img/mine.png")}}) 7px 9px no-repeat;
