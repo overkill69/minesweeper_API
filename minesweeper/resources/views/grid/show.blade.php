@@ -65,7 +65,7 @@ $(document).ready(function(){
 		}).done(function(data){		
 			console.log(data);
 			$.each(data, function(gg){				
-				console.log(data[gg]);
+				console.log(data.estado);
 				if(data[gg].content != 10){				
 					$("#"+data[gg].id).removeClass('btn-secondary').addClass('btn-link');
 				}else{					

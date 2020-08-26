@@ -79,7 +79,7 @@ class GamesController extends Controller
      */
     public function edit(Games $games)
     {
-        dd("aca???");
+     //
     }
 
     /**
@@ -124,8 +124,12 @@ class GamesController extends Controller
         ->first();
         //dd($gg);
         $c = $this->_checkFinish($gg->grid_id);
-dd($c);
-        return $resp;    
+        if($c == 1){
+            $sqr = Squares::findOrFail( $request->input("sqareId") );     
+            return response()->json(["estado" => "win", $this->_revealBombs($sqr)]);
+        } else {
+            return $resp;    
+        }
     }
 
     /**
@@ -175,7 +179,8 @@ dd($c);
         
         $sq = Squares::where("content", "=", 10 )->where('grids_id','=',$sqr->grids_id)->get();
         $gam = Games::where("grid_id", "=", $sqr->grids_id)->first();
-        $gam->staus = 1;//finished by bombs;
+        
+        $gam->status = 1;//finished by bombs;
         $gam->save();
         return $sq;
     }
@@ -183,11 +188,12 @@ dd($c);
     private function _checkFinish($grid)
     {        
         $ch = Squares::where("grids_id", "=", $grid)->where("discover", "=", 0 )->where("content", "!=" ,10)->count('id');
-        dd($ch);
+        //dd($ch);
         if ($ch > 0){            
             return 0;
         } else {
-            $game = Games::Where("grid_id", "=", $grid)->get();
+            
+            $game = Games::Where("grid_id", "=", $grid)->first();
             $game->status = 1;
             $game->completed_at = date("Y-m-d H:i:s");
             $game->save();
