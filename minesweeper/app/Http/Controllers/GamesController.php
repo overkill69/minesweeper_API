@@ -92,44 +92,31 @@ class GamesController extends Controller
     public function update( Games $games, Request $request)
     {
         $event = $request->input("event");
-        
+        $resp = 0 ;
+        $sqr = Squares::findOrFail( $request->input("sqareId") );    
         switch ($event){
             case "reveal":
-                $sqr = Squares::findOrFail( $request->input("sqareId") );     
-                $resp = $this->_revealSquares($sqr);
+                $resp = $this->_revealSquares($sqr);                
             break;
 
-            case "updateStatus":
-                if($request->input("status") == "question"){
-                    $sqr = Squares::findOrFail( $request->input("sqareId") );     
+            case "updateStatus":                
+                if($request->input("status") == "question"){                      
                     $resp = $this->_questionCell($sqr);
-                } else {
-                    $sqr = Squares::findOrFail( $request->input("sqareId") );     
+                } else {                    
                     $resp = $this->_flagCell($sqr);                
-                }
-                
+                }                
             break;
 
-            case "revealAllBombs":                
-                $sqr = Squares::findOrFail( $request->input("sqareId") );     
+            case "revealAllBombs":                                
                 $resp = $this->_revealBombs( $sqr );
             break;
         }
-        $gg = DB::table('games')
-        ->join('grids', 'games.grid_id',"=", 'grids.id')
-        ->join('squares', 'squares.grids_id',"=", 'grids.id')
-        ->select('games.grid_id')
-        ->where('squares.id', '=', $request->input("sqareId"))
-        ->where('games.status', '!=', 1)
-        ->first();
-        //dd($gg);
-        $c = $this->_checkFinish($gg->grid_id);
-        if($c == 1){
-            $sqr = Squares::findOrFail( $request->input("sqareId") );     
+        $rb = $this->_checkRemainingBombs($sqr);
+        if($rb === 0){
             return response()->json(["estado" => "win", $this->_revealBombs($sqr)]);
-        } else {
-            return $resp;    
         }
+        return $resp;
+        
     }
 
     /**
@@ -155,6 +142,12 @@ class GamesController extends Controller
         $squares->discover = 3; //question;
         $squares->save();
         return $squares;
+    }
+
+    private function _checkRemainingBombs(Squares $square )
+    {
+        $RemBombs = Squares::where('grids_id', '=',$square->grids_id )->where("content", '=', 10)->where('discover', '=', 0)->count('id');
+        return $RemBombs ;
     }
 
     private function setSquares( $bombs, $size, $grid_id )
@@ -208,6 +201,8 @@ class GamesController extends Controller
             $surroundings = $this->_chechSurroundingSquares($sqr);
         } else {            
             $game = Games::where('grid_id', "=",$sqr->grids_id)->first();
+            $game->status = 1;
+            $game->save();
             return "Boom!";
         }
         return $surroundings;
@@ -233,50 +228,66 @@ class GamesController extends Controller
         // check if there's a square up
         if($sqr->x > 1){
             $up = Squares::where('x','=',($sqr->x - 1))->where("y","=", $sqr->y)->where('grids_id','=',$sqr->grids_id)->first();                  
-            $up->discover = 1;
-            $up->save();
+            if($up->content != 10){
+                $up->discover = 1;
+                $up->save();
+            }
         }
         // check if there's a square up left
         if($sqr->x > 1 && $sqr->y > 1 ){
             $upLeft = Squares::where('x','=',($sqr->x - 1))->where("y","=", ($sqr->y - 1))->where('grids_id','=',$sqr->grids_id)->first();
-            $upLeft->discover = 1 ;
-            $upLeft->save();
+            if($upLeft->content != 10){
+                $upLeft->discover = 1;
+                $upLeft->save();
+            }
         }
         // check if there's a square left
         if($sqr->y > 1 ){
             $left = Squares::where('y','=',($sqr->y - 1))->where("x","=", $sqr->x)->where('grids_id','=',$sqr->grids_id)->first();
-            $left->discover = 1 ;
-            $left->save();
+            if($left->content != 10){
+                $left->discover = 1;
+                $left->save();
+            }
         }
         // check if there's a square down left
         if($sqr->x < $grid->height && $sqr->y > 1 ){            
             $downLeft = Squares::where('x','=',($sqr->x + 1))->where("y","=", ($sqr->y - 1))->where('grids_id','=',$sqr->grids_id)->first();            
-            $downLeft->discover = 1 ;
-            $downLeft->save();
+            if($downLeft->content != 10){
+                $downLeft->discover = 1;
+                $downLeft->save();
+            }
         }
         //check if tere's a sqaure down
         if($sqr->x < $grid->height){
             $down = Squares::where('x','=',($sqr->x + 1))->where("y","=", $sqr->y)->where('grids_id','=',$sqr->grids_id)->first();                        
-            $down->discover = 1 ;
-            $down->save();
+            if($down->content != 10){
+                $down->discover = 1;
+                $down->save();
+            }
         }
         // check if there's a square down right
         if($sqr->x < $grid->height && $sqr->y < $grid->width ){            
             $downRight = Squares::where('x','=',($sqr->x + 1))->where("y","=", ($sqr->y + 1))->where('grids_id','=',$sqr->grids_id)->first();            
-            $downRight->discover = 1 ;
-            $downRight->save();
+            if($downRight->content != 10){
+                $downRight->discover = 1;
+                $downRight->save();
+            }
         }
         //check if tere's a sqaure right
         if($sqr->y < $grid->width){
             $right = Squares::where('y','=',($sqr->y + 1))->where("x","=", $sqr->x)->where('grids_id','=',$sqr->grids_id)->first();                        
-            $right->discover = 1 ;
-            $right->save();
+            if($right->content != 10){
+                $right->discover = 1;
+                $right->save();
+            }
         }
         // check if there's a square up right
         if($sqr->x > 1 && $sqr->y < $grid->width ){            
             $upRight = Squares::where('x','=',($sqr->x - 1))->where("y","=", ($sqr->y + 1))->where('grids_id','=',$sqr->grids_id)->first();            
-            $upRight->discover = 1 ;
-            $upRight->save();
+            if($upRight->content != 10){
+                $upRight->discover = 1;
+                $upRight->save();
+            }
         }
         
         if( true === ( isset($up)) && $up->content !== 10){

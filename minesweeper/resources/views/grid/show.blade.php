@@ -15,11 +15,17 @@
 										
 										@foreach ($gameP->game[0]->grid->squares as $square)
 											@if( ($square->x == (string)$i) && ($square->y == (string)$j) )
-												@if($square->discover == false)
+												@if($square->discover == false && $gameP->game[0]->status !== 1)
 													<button class=" btn btn-secondary btn-game" id="{{$square->id}}"><i>&nbsp;</i></button>
 												@else
 													@if($square->content == 10)
-														<button class=" btn btn-game btn-danger" id="{{$square->id}}" disable="disable"><i>&nbsp;</i></button>													
+														@if($square->discover == 3)
+															<button class=" btn  btn-game btn-question" id="{{$square->id}}" disable="disable"><i>&nbsp;</i></button>
+															@elseif($square->discover == 2)
+															<button class=" btn  btn-game btn-flag" id="{{$square->id}}" disable="disable"><i>&nbsp;</i></button>
+															@else
+															<button class=" btn btn-game btn-danger" id="{{$square->id}}" disable="disable"><i>&nbsp;</i></button>
+															@endif
 													@else
 														@if($square->discover == 3)
 														<button class=" btn  btn-game btn-question" id="{{$square->id}}" disable="disable"><i>&nbsp;</i></button>
@@ -65,18 +71,22 @@ $(document).ready(function(){
 		}).done(function(data){		
 			console.log(data);
 			$.each(data, function(gg){				
-				console.log(data.estado);
-				if(data[gg].content != 10){				
-					$("#"+data[gg].id).removeClass('btn-secondary').addClass('btn-link');
-				}else{					
-					if(clicked[0].id == data[0].id ){
-						$("#"+data[gg].id).removeClass('btn-secondary').addClass('btn-danger');
-						$(':button').prop('disabled', true);
-						alert("GAME OVER!!!!");
-						revealBombs(clicked);
-						return false;
-					} 										
-				}
+				//console.log(data.estado);
+				if(data.estado == "win"){
+					alert("You WIN!!!");
+				} else {
+					if(data[gg].content != 10){				
+						$("#"+data[gg].id).removeClass('btn-secondary').addClass('btn-link');
+					}else{					
+						if(clicked[0].id == data[0].id ){
+							$("#"+data[gg].id).removeClass('btn-secondary').addClass('btn-danger');
+							$(':button').prop('disabled', true);
+							alert("GAME OVER!!!!");
+							revealBombs(clicked);
+							return false;
+						} 										
+					}
+				}				
 			});			
 		});
 	});
@@ -122,32 +132,33 @@ $(document).ready(function(){
 			type: "PUT",
 			data:{'event': "updateStatus", 'status': status ,'sqareId': SqtId }
 		})
-		.done(function(data){					
+		.done(function(data){								
+			
 			$.each(data, function(gg){	
-				if(data.discover === 2){
-					$("#"+data.id).removeClass('btn-secondary').addClass('btn-flag');				
-				}if(data.discover === 3){				
-					$("#"+data.id).removeClass('btn-secondary').addClass('btn-question');				
-				}
-			});			
-		});
-	}
-
-	
-	function doAjax() {
-		$.ajax({
-				url:"/api/games/{{ $gameP->game[0]->id }}",
-				type: "PUT",
-				data:{'event': "updateStatus", 'status': status ,'sqareId': SqtId },
-				dataType: 'json',
-				success: function (data) {
-					if(data == 1){
-						$
+				console.log(data[0][0]);
+				if(data.estado == "win"){
+					if(data[0][0].discover === 2){
+						$("#"+data[0][0].id).removeClass('btn-secondary').addClass('btn-flag');				
+					}
+					if(data[0][0].discover === 3){				
+						$("#"+data[0][0].id).removeClass('btn-secondary').addClass('btn-question');				
+					}
+					$(".btn").disabled=true;
+					alert("You WIN!!!");
+					return false;
+				} else {
+					if(data.discover === 2){
+						$("#"+data.id).removeClass('btn-secondary').addClass('btn-flag');				
+					}
+					if(data.discover === 3){				
+						$("#"+data.id).removeClass('btn-secondary').addClass('btn-question');				
 					}
 				}
 				
+			});						
 		});
 	}
+
 });
 </script>
 

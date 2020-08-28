@@ -9,6 +9,9 @@
                     <div class="row justify-content-center">
                         <div class="col-12 align-left">Available Games</div>
                     </div>
+                    <div class="row justify-content-right">
+                        <a href="/new-game">New Game</a>
+                    </div>
                     <div class="row row-data header-row">
                             <div class="col-md-3 col-data">Name</div>
                             <div class="col-md-3 col-data">Player</div>
